@@ -12,35 +12,34 @@ router.get('/', async (req, res) => {
   }
 });
 
-// PATCH - Update booking status
-router.patch('/:id', async (req, res) => {
+// POST a booking
+router.post('/', async (req, res) => {
+  const booking = new Booking(req.body);
   try {
-    const updatedBooking = await Booking.findByIdAndUpdate(
-      req.params.id,
-      { status: req.body.status },
-      { new: true }
-    );
-    if (!updatedBooking) {
-      return res.status(404).json({ message: 'Booking not found' });
-    }
-    res.json(updatedBooking);
+    const newBooking = await booking.save();
+    res.status(201).json(newBooking);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(400).json({ message: err.message });
   }
 });
 
-// DELETE - Delete booking
+// PATCH booking status
+router.patch('/:id', async (req, res) => {
+  try {
+    const booking = await Booking.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true });
+    res.json(booking);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// DELETE a booking
 router.delete('/:id', async (req, res) => {
   try {
-    const deletedBooking = await Booking.findByIdAndDelete(req.params.id);
-    if (!deletedBooking) {
-      return res.status(404).json({ message: 'Booking not found' });
-    }
-    res.json({ message: 'Booking deleted successfully' });
+    await Booking.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Booking deleted' });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: err.message });
   }
 });
 
