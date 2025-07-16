@@ -4,15 +4,22 @@ const cors = require('cors');
 const bookingsRoute = require('./routes/bookings');
 
 const app = express();
-app.use(cors());
+
+// ✅ CORS setup for Render + Vercel
+app.use(cors({
+  origin: '*', // For development; for production, replace '*' with your Vercel domain
+  methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Content-Type'],
+}));
+
 app.use(express.json());
 
-// ✅ Connect to MongoDB (clean, no deprecated options)
+// ✅ Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/vendor-dashboard')
   .then(() => console.log('MongoDB connected'))
   .catch((err) => console.error(err));
 
-// ✅ Use bookings route
+// ✅ Use bookings route correctly
 app.use('/api/bookings', bookingsRoute);
 
 // ✅ Start server
